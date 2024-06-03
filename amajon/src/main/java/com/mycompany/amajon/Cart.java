@@ -322,7 +322,7 @@ public class Cart extends javax.swing.JFrame {
 
     class jTextField1 {
 
-        static void setText(String string) {
+        void setText(String string) {
             throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         }
 

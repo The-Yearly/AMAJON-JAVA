@@ -6,12 +6,29 @@
 
 package com.mycompany.amajon;
 import javax.swing.JOptionPane;
-
+import java.sql.*;
+import java.util.*;
 
 /**
  *
  * @author vighn
  */
+class Returning_User{
+    private String uname;
+    private String password;
+    public void setUser(String uname){
+        this.uname=uname;
+    }
+    public void setPass(String password){
+        this.password=password;
+    }
+    public String getPass(){
+        return(password);
+    }
+    public String getUser(){
+        return(uname);
+    }
+}
 public class Login extends javax.swing.JFrame {
 
     /**
@@ -161,17 +178,48 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_userActionPerformed
 
     private void loginbtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginbtActionPerformed
-    if(user.getText().equals("")){
-    JOptionPane.showMessageDialog(null,"Please enter a username");}
-    else if(password.getText().equals("")) {
-        JOptionPane.showMessageDialog(null,"Please enter the password");}
-    else if(!password.getText().equals("amrita")) {
-        JOptionPane.showMessageDialog(null,"Incorrect Password");}
-    else if(password.getText().equals("amrita")){
-        Amajon_Interface amajon= new Amajon_Interface();
-        amajon.setVisible(true);
-        this.setVisible(false);
-    }
+        try{
+            List unames=new ArrayList();
+            List passes=new ArrayList();
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con=DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/amajon","root","Arduino1");
+            Statement stmt=con.createStatement();
+            ResultSet Rs=stmt.executeQuery("select * from users_list");
+            while (Rs.next()){
+                unames.add(Rs.getString(2));
+                passes.add(Rs.getString(3));
+            }
+            System.out.println("sss     "+unames+"  "+passes);
+            Returning_User ruser=new Returning_User();
+            System.out.print(user.getText());
+            ruser.setUser(user.getText());
+            ruser.setPass(password.getText());
+            if(ruser.getUser().equals("")){
+                JOptionPane.showMessageDialog(null,"Please enter a username");}
+            if(unames.contains(ruser.getUser())==false){
+                JOptionPane.showMessageDialog(null,"User-Name Not Found");
+            }
+             else if (unames.contains(ruser.getUser())==true){
+                int index=unames.indexOf(ruser.getUser());
+                String cpass=(String)passes.get(index);
+                if(ruser.getUser().equals("")) {
+                    System.out.println("S");
+                    JOptionPane.showMessageDialog(null,"Please enter the password");}
+                else if(!ruser.getPass().equals(cpass)) {
+                    JOptionPane.showMessageDialog(null,"Incorrect Password");}
+                else if(ruser.getPass().equals(cpass)){
+                    Amajon_Interface amajon= new Amajon_Interface();
+                    amajon.setVisible(true);
+                    this.setVisible(false);
+                }
+            }
+
+        }catch(Exception e){ System.out.println(e);}
+
+
+
+
     }//GEN-LAST:event_loginbtActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -192,7 +240,7 @@ public class Login extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

@@ -3,20 +3,62 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.amajon;
-
+import java.sql.*;
+import java.util.*;
 import javax.swing.JOptionPane;
 
 /**
  *
  * @author vighn
  */
-public class Signup extends javax.swing.JFrame {
+class New_User{
+    private String password;
+    private String username;
+    private String name;
+    private String conpass;
+    public void setUser(String usern){
+        username=usern;
+    }
+    public void setPass(String pass){
+        password=pass;
+    }
+    public void setCpass(String cpass){
+        conpass=cpass;
+    }
+    public void setName(String na){
+        name=na;
+    }
+    public String getUser(){
+        return(username);
+    }
+    public String getPass(){
+        return(password);
+    }
+    public String getName(){
+        return(name);
+    }
+    public String getCpass(){
+        return(conpass);
+    }
 
+}
+public class Signup extends javax.swing.JFrame {
     /**
      * Creates new form Signup
      */
     public Signup() {
-        initComponents();
+        try{
+            List unames=new ArrayList();
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con=DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/amajon","root","Arduino1");
+            Statement stmt=con.createStatement();
+            ResultSet Rs=stmt.executeQuery("select * from users_list");
+            while (Rs.next()){
+                unames.add(Rs.getString(2));
+            }
+            initComponents(unames,stmt);
+        }catch(Exception e){ System.out.println(e);}
     }
 
     /**
@@ -26,7 +68,7 @@ public class Signup extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents(List unames,Statement stmt) {
 
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -68,7 +110,7 @@ public class Signup extends javax.swing.JFrame {
         jButton1.setOpaque(true);
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButton1ActionPerformed(evt,unames,stmt);
             }
         });
 
@@ -147,7 +189,7 @@ public class Signup extends javax.swing.JFrame {
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 110, 300, 370));
 
         jLabel2.setBackground(new java.awt.Color(226, 210, 238));
-        jLabel2.setIcon(new javax.swing.ImageIcon("C:\\Images\\a.signupimg.jpg")); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon("signupimg.jpg")); // NOI18N
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1020, 600));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -167,21 +209,45 @@ public class Signup extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        
-         if(namet.getText().equals("")){
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt,List unames,Statement stmt) {//GEN-FIRST:event_jButton1ActionPerformed
+    New_User user=new New_User();
+    user.setUser(usert.getText());
+    user.setName(namet.getText());
+    user.setPass(passwordt.getText());
+    user.setCpass(cpasswordt.getText());
+    if(user.getName().equals("")){
     JOptionPane.showMessageDialog(null,"Please enter a name");}
-    else if(usert.getText().equals("")) {
-        JOptionPane.showMessageDialog(null,"Please enter the username");}     
-    else if(passwordt.getText().equals("")) {
+    else if(user.getName().length()<3 || user.getName().length()>30){
+        JOptionPane.showMessageDialog(null,"Please Enter A Name Greater Than 2 Characters And Less Than 30 Characters");
+    }
+    else if(user.getUser().equals("")) {
+        JOptionPane.showMessageDialog(null,"Please enter the username");}
+    else if (user.getUser().length()<3 || user.getUser().length()>30){
+        JOptionPane.showMessageDialog(null,"Please Enter A User-Name Greater Than 2 Characters and less Than 30 Characters");
+
+    }
+    else if(unames.contains(user.getUser())){
+        JOptionPane.showMessageDialog(null,"User-Name Already Exist");
+         }
+    else if(user.getPass().equals("")) {
         JOptionPane.showMessageDialog(null,"Please enter the Password");}
-    else if(cpasswordt.getText().equals("")) {
-        JOptionPane.showMessageDialog(null,"Please enter the Confirm Password");}
-    else if (passwordt.getText() != null && cpasswordt.getText() != null &&
-    passwordt.getText().trim().equals(cpasswordt.getText().trim())) {
+    else if (user.getPass().length()<3 || user.getPass().length()>30){
+        JOptionPane.showMessageDialog(null,"Please Enter A Password Greater Than 2 Characters and less Than 30 Characters");
+    }
+    else if(user.getCpass().equals("")) {
+        JOptionPane.showMessageDialog(null,"Please Re-Enter The Password");}
+    else if (user.getPass() != null && user.getCpass() != null &&
+    user.getPass().trim().equals(user.getCpass().trim())) {
         Login log=new Login();
-        log.setVisible(true);
-        this.setVisible(false);
+        try {
+            String q=String.format("insert into users_list(username,password,name) values('%1s','%2s','%3s')",user.getUser(),passwordt.getText(),user.getName());
+            stmt.executeUpdate(q);
+            log.setVisible(true);
+            this.setVisible(false);
+        }
+        catch(Exception e){
+            System.out.println(e);
+             }
  
 } else {
         JOptionPane.showMessageDialog(null,"Password and Confirm Password doesn't match");
